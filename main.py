@@ -1,7 +1,18 @@
 import discord
 import os
+import threading
+from flask import Flask
 
-client = discord.Client()
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return "Discord bot is running"
+
+intents = discord.Intents.default()
+intents.message_content = True
+
+client = discord.Client(intents=intents)
 
 @client.event
 async def on_ready():
@@ -9,7 +20,6 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    #check if message isn't from us
     if message.author == client.user:
         return
 
@@ -18,4 +28,8 @@ async def on_message(message):
     else:
         await message.channel.send(message.content)
 
-client.run(os.getenv('TOKEN'))
+def run_bot():
+    client.run(os.getenv('TOKEN'))
+
+thread = threading.Thread(target=run_bot, daemon=True)
+thread.start()
